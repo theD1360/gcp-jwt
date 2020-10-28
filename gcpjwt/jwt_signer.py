@@ -60,7 +60,7 @@ class JWTSigner:
         key_path = self.client.crypto_key_path(self.project, self.location, ring, key)
         enabled_keys = [e for e in list(self.client.list_crypto_key_versions(parent=key_path))
                         if e.state == kms_enums.CryptoKeyVersion.CryptoKeyVersionState.ENABLED]
-        latest = sorted(enabled_keys, key=lambda e: e.create_time.seconds, reverse=True)[0]
+        latest = sorted(enabled_keys, key=lambda e: e.create_time.timestamp(), reverse=True)[0]
         type = kms_enums.CryptoKeyVersion.CryptoKeyVersionAlgorithm(latest.algorithm).name.split('_')[0]
         return type, self.client.asymmetric_sign(name=latest.name, digest=self._hash_map[hash](data)).signature
 
@@ -73,7 +73,7 @@ class JWTSigner:
             return None, False
 
         if force_latest:
-            latest = sorted(enabled_keys, key=lambda e: e.create_time.seconds, reverse=True)[0]
+            latest = sorted(enabled_keys, key=lambda e: e.create_time.timestamp(), reverse=True)[0]
             return self._verify_task(latest, payload, signature, hash)
         else:
             if self._thread_pool is not None:
