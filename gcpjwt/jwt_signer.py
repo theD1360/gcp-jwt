@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import ec, rsa, utils
 from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey
 
 from google.cloud.kms_v1 import KeyManagementServiceClient
-from google.cloud.kms_v1.gapic import enums as kms_enums
+from google.cloud.kms_v1.types import types as kms_enums
 
 
 class JWTSigner:
