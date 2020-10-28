@@ -4,9 +4,9 @@ import hashlib
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import ec, rsa, utils
+from cryptography.hazmat.primitives.asymmetric import ec, utils
 from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey
-
+from google.cloud.kms_v1 import Digest
 from google.cloud.kms_v1 import KeyManagementServiceClient
 from google.cloud.kms_v1 import types as kms_enums
 
@@ -62,7 +62,7 @@ class JWTSigner:
                         if e.state == kms_enums.CryptoKeyVersion.CryptoKeyVersionState.ENABLED]
         latest = sorted(enabled_keys, key=lambda e: e.create_time.timestamp(), reverse=True)[0]
         type = kms_enums.CryptoKeyVersion.CryptoKeyVersionAlgorithm(latest.algorithm).name.split('_')[0]
-        return type, self.client.asymmetric_sign(name=latest.name, digest=self._hash_map[hash](data)).signature
+        return type, self.client.asymmetric_sign(name=latest.name, digest=Digest(self._hash_map[hash](data))).signature
 
     def verify(self, ring: str, key: str, payload: bytes, signature: bytes, force_latest: bool = False,
                hash: str = 'sha256'):
